@@ -7,48 +7,27 @@ Created on Sun Apr 23 06:24:23 2017
 
 from matplotlib import pyplot
 
-#import numpy
-#import csv
+#Data set from Data Handling
 
-#Data set of old and new data
-#1. Importing storage file of the previous batches.
-#    should be able to go into code and correct error
-#    Code in different script for data handling required instead
-
-#data = []
-#
-#with open('storage.csv', 'rb') as csvfile:
-#    csvreader = csv.reader(csvfile, delimiter=',')
-#    for cnt, row in enumerate(csvreader):
-#        if cnt == 0:
-#            headings = row
-#        else:
-#            data.append(row)
-#            
-#print headings, data
-#
-#value_list = data[]
-#batch_list = data[]
-
+#1. This is the part we are supposed to call the list from Data Handling
+#    figure out how to call a list or maybe the function in data handling but call it to SPC
 value_mlist = [1.0, 1.2, 1.3, 1.4]  
-batch_list = [1, 2, 3, 3]
+batch_list = [1, 2, 3, 4]
 value_rlist = [0.2, 0.3, 0.2,0.3]
 
 #Parameters
-sample  = 4
+sample  =  4
 A_2 = 0.73
 two_thirds_A2 = 0.49
 D1_1 = 2.57
 D1_25 = 1.93
 
-#Inputs
-batch = input("Batch No: ")
-value = input("Value: ")
-value_mlist.append(value)
-batch_list.append(batch)
+#2. Fix the SPC method to improve return of results i.e plot from 4th batch for moving range and moving mean 
+#   chart
+#3. Individual chart for first 3 batches in order to start getting a graph instead
+#   of waiting for four batches. Can use else statement
 
-#Fix the SPC method to improve return of results
-if batch >= sample:   #Only starts plotting if more than 4 batches
+if batch_list[-1] >= sample:   #Only starts plotting if more than 4 batches
     
     #Calculate mean and range from previous 4 batches
     values_4 = []
@@ -57,15 +36,15 @@ if batch >= sample:   #Only starts plotting if more than 4 batches
         
     print values_4
 
-    value_mean = sum(values_4)/batch
+    value_mean = sum(values_4)/batch_list[-1]
     value_range = max(values_4)-min(values_4)
-    
+            
     value_rlist.append(value_range)
     
     #Mean and range lines for graphs
     value_mean_list  = []
     value_range_list = []
-    for i in range(1, batch + 1):
+    for i in range(1, batch_list[-1] + 1):
         value_mean_list.append(value_mean)
         value_range_list.append(value_range)
       
@@ -81,7 +60,7 @@ if batch >= sample:   #Only starts plotting if more than 4 batches
     LAL_mean = value_mean - A_2*value_range 
     
     
-    for i in range(1, batch + 1):
+    for i in range(1, batch_list[-1] + 1):
         UAL_mean_list.append(UAL_mean)
         UWL_mean_list.append(UWL_mean)
         LWL_mean_list.append(LWL_mean)
@@ -95,7 +74,7 @@ if batch >= sample:   #Only starts plotting if more than 4 batches
     UWL_range = D1_25*value_range
     
     
-    for i in range(1, batch + 1):
+    for i in range(1, batch_list[-1] + 1):
         UAL_range_list.append(UAL_range)
         UWL_range_list.append(UWL_range)
     
@@ -123,24 +102,12 @@ if batch >= sample:   #Only starts plotting if more than 4 batches
     pyplot.plot(batch_list, UWL_range_list, "y-", label = "UWL")
     pyplot.legend()
     pyplot.show(1)   
-
-#else:    #Values from when the process was thought to be in statistical process control i.e. 4 values 
-                                    #so can start plotting graphs instead of waiting for 4 batches
     
-#4. Write to storage i.e. csv file in order to update for batch and SG list
-     #Another python script required for this instead of csv file
+#5. Want to be alerted by form of a graph of
+#   within this SPC file by a plot when similar recipes done 
 
-#headings = ["batch list", "SG number"]
-#data = numpy.matrix([[batch, SG]])
-#
-#with open("storage.csv", "wb") as a csv file:
-#    csvwriter = csv.writer(csvfile, delimiter = ",")
-#    csvwriter.writerow(headings)
-#    for row_data in data:
-#        csvwriter.writerow(row_data)
+
     
-#5. Split the code into separate files for easier use of code
-#6. Should be able to plot for different periods and compare
     
 
     
