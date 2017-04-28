@@ -6,20 +6,32 @@ Created on Sun Apr 23 06:24:23 2017
 """
 
 from matplotlib import pyplot
-from Auxiliary_File import data_aquis
+import csv
 
 #Electronic input of data
 
 #1. Confrirm electronic input works
 
+data = []
 
+with open('First test data_Tlog_2.csv', 'rb') as csvfile:
+    csvreader = csv.reader(csvfile, delimiter=',')
+    for cnt, row in enumerate(csvreader):
+        if cnt == 0:
+            headings = row
+        else:
+            data.append(row)
 
-file_name = raw_input('File name: ')    #e.g 'storage.csv'    
-print file_name
+#Getting lists from matrix
 
+print len(data)
+
+#vals_per_batch = data[:,1]
+#time_stamp = data[:,0]    
+
+#Data input required for recipe analysis
 recipe_no = input('Recipe Number: ')
 num = input('Number of recipes: ')   #Number of recipes we currently have
-data = data_aquis(file_name)
 
 recipe_no_list = []
 recipe_no_list.append(recipe_no)
@@ -29,13 +41,14 @@ recipe_no_list.append(recipe_no)
 
 #2. Determine standard for what is acceptable or not when analysing slope of data
 
-time_stamp = data[:,0]
-vals_per_batch = data[:,1]
+time_stamp = data[0]
+vals_per_batch = data[1]
 
-pyplot.figure()
-pyplot.plot(time_stamp, vals_per_batch, 'g-', label = 'values per batch')
-pyplot.legend()
-pyplot.show()
+
+#pyplot.figure()
+#pyplot.plot(time_stamp, vals_per_batch, 'g-', label = 'values per batch')
+#pyplot.legend()
+#pyplot.show()
 
 #Finding average value of data during the batch
 
