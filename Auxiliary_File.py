@@ -1,37 +1,40 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Apr 26 23:11:12 2017
+Created on Tue May 02 21:43:25 2017
 
 @author: user
 """
 
 import csv
+import numpy
 
-#Data Aquisition
-
-def data_aquis(file_name):
+def data_call(file_name):
     
-    #Raw data
     data = []
-    #1. Using Bernie's data logging confirm the csv method of aquiring data
-    #Open the storage from the database in form of csv to get data for a particular batch
     with open(file_name, 'rb') as csvfile:
         csvreader = csv.reader(csvfile, delimiter=',')
         for cnt, row in enumerate(csvreader):
             if cnt == 0:
                 headings = row
             else:
-                data.append(row)
-
-    #Getting lists from matrix
-    vals_per_batch = data[:,1]
-    time_stamp = data[:,0]    
+                new_row = []                             
+                for a in range(1, len(row)):
+                    new_row.append(row[a])
+                new_row = map(float, new_row)
+                data.append(new_row)
+        data = numpy.array(data) 
+        
+    return headings,data
     
-    return [headings, vals_per_batch, time_stamp]
-
-
     
+def data_write(file_name, headings, data):
     
-
+    with open(file_name, 'wb') as csvfile:
+        # initialize the csv.writer object
+        csvwriter = csv.writer(csvfile, delimiter=',')
+        # write the headings for the data
+        csvwriter.writerow(headings)
+        # write each row of the data list to file
+        for row_data in data:
+            csvwriter.writerow(row_data)
     
-
