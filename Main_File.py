@@ -20,30 +20,31 @@ D1_25 = 1.93
 #recipe_no = input('Recipe Number: ')
 #num = input('Number of recipes: ')   #Number of recipes we currently have
 
+recipe_no = 1
+num = 10
+
 ##Electronic input of data
 ##Data input from new input
-file_name1 = input('File Name 1: ')   #First_test.csv
 
-data1 = pandas.read_csv(file_name1) #, header = None, usecols=[1])
-data1 = numpy.array(data1)
+#file_name1 = input('File Name 1: ')   #First_test.csv
+#print('filename',file_name1)
 
-
-
+data1 = pandas.read_csv('First_test.csv', parse_dates=['TimeStamp']) 
+data1 = data1['T1']
 
 ##Data input from storage
 #file_name2 = input('File Name 2: ')   #'Storage.csv'
-#
-#data2 = pandas.read_csv(file_name2)
 
-#
-#data2_values = list(data2[:,0])
-#data2_range = list(data2[:,1])
-#data2_recipe = list(data2[:,2])
+data2 = pandas.read_csv('First_storage.csv') 
+
+data2_values = list(data2['Values'])
+data2_range = list(data2['Ranges'])
+data2_recipe = list(data2['Recipes'])
 
 #Plotting data from continuous control over time to see visually change in values
 #Assume data changing over time for a particular batch so single value required per batch
 #Finding average value of data during the batch
-vals_per_batch =  list(data1[:,0])
+vals_per_batch =  data1.tolist()
 time_stamp = range(1, len(data1) + 1)     
 
 pyplot.figure(1)
@@ -51,9 +52,9 @@ pyplot.plot(time_stamp, vals_per_batch, 'g-', label = 'values per batch')
 pyplot.legend()                                
 pyplot.show(1)    
    
-av_value = sum(vals_per_batch)/len(vals_per_batch) 
+av_value = numpy.mean(vals_per_batch)
 
-#Creating a list that can be used in SPC 
+#Creating a list that can be used in SPC by combining storage and new data
 batch_list = []
 value_mlist = []
 value_rlist = []
@@ -61,6 +62,8 @@ recipe_no_list = []
 
 recipe_no_list.extend(data2_recipe)
 recipe_no_list.append(recipe_no)
+
+print (recipe_no_list)
 
 value_mlist.extend(data2_values)
 value_mlist.append(av_value)
@@ -78,52 +81,24 @@ if batch_list[-1] >= sample:
     
     #Calculate mean and range from previous 4 batches
     values_4 = []
-    batch_4 = []
     for c in range(-1, -5, -1):
         values_4.append(value_mlist[c])
-        batch_4.append(batch_list[c])
-        
-    value_mean = sum(values_4)/len(batch_4)   
+
+    value_mean =  numpy.mean(values_4)
     value_range = max(values_4)-min(values_4)
             
     value_rlist.append(value_range)
     
-    #Mean and range lines for graphs
-    value_mean_list  = []
-    value_range_list = []
-    for f in range(1, batch_list[-1] + 1):
-        value_mean_list.append(value_mean)
-        value_range_list.append(value_range)     
-      
-    #Mean Chart limits
-    UAL_mean_list = []
-    UWL_mean_list = []
-    LWL_mean_list = []
-    LAL_mean_list = []   
     
+    #Chart limits
     UAL_mean = value_mean + A_2*value_range
     UWL_mean = value_mean + two_thirds_A2*value_range
     LWL_mean = value_mean - two_thirds_A2*value_range
-    LAL_mean = value_mean - A_2*value_range 
-    
-    
-    for g in range(1, batch_list[-1] + 1):
-        UAL_mean_list.append(UAL_mean)
-        UWL_mean_list.append(UWL_mean)     
-        LWL_mean_list.append(LWL_mean)     
-        LAL_mean_list.append(LAL_mean)
-        
-    #Range chart limits
-    UAL_range_list = []
-    UWL_range_list = []
-    
+    LAL_mean = value_mean - A_2*value_range
+
     UAL_range = D1_1*value_range
     UWL_range = D1_25*value_range
-    
-    for h in range(1, batch_list[-1] + 1):
-        UAL_range_list.append(UAL_range)
-        UWL_range_list.append(UWL_range)    
-        
+
     #Creating plotting list to start at 4 batches
     batch_list4 = []
     value_mlist4 = []
@@ -137,83 +112,78 @@ if batch_list[-1] >= sample:
             value_rlist4.append(value_rlist[i-1])
             recipe_list4.append(recipe_no_list[i-1])
             
-    #Recipe comparison    
-    recipes = range(1, num + 1)
-
-    for j in recipes:
-        
-        recipe_mcomp = []
-        recipe_rcomp = []
-        batch_comp = []
-        
-        l = 0
-        for k in recipe_list4:
-            if j == k:
-                recipe_mcomp.append(value_mlist4[l])
-                batch_comp.append(batch_list4[l])
-                recipe_rcomp.append(value_rlist[l])
-            l = l + 1
-        
-        if len(recipe_mcomp)>=2:
-            pyplot.figure(2)
-            pyplot.subplot(1, 2, 1)
-            pyplot.plot(batch_comp, recipe_mcomp,"k-", label = "Recipe Comparison")
-            pyplot.plot(batch_comp, recipe_mcomp,"ko")
-            
-            pyplot.plot(batch_list, value_mean_list, "g-", label = "Data_mean")
-            pyplot.plot(batch_list, UAL_mean_list, "r-", label = "UAL" )
-            pyplot.plot(batch_list, UWL_mean_list, "y-", label = "UWL" )
-            pyplot.plot(batch_list, LWL_mean_list, "y-", label = "LWL" )
-            pyplot.plot(batch_list, LAL_mean_list, "r-", label = "LAL" )
-            #pyplot.legend()
-            
-            pyplot.subplot(1, 2, 2)  
-            pyplot.plot(batch_comp, recipe_rcomp,"k-", label = "Recipe Comparison")
-            pyplot.plot(batch_comp, recipe_rcomp,"ko")
-            
-            pyplot.plot(batch_list, value_range_list, "g-", label = "Data_mean_range") 
-            pyplot.plot(batch_list, UAL_range_list, "r", label = "UAL")
-            pyplot.plot(batch_list, UWL_range_list, "y-", label = "UWL")
-            #pyplot.legend()
-            
-            pyplot.show(2)
+#    #Recipe comparison    
+#    recipes = range(1, num + 1, 1)
+#
+#    for j in recipes:
+#        
+#        recipe_mcomp = []
+#        recipe_rcomp = []
+#        batch_comp = []
+#        
+#        l = 0
+#        for k in recipe_list4:
+#            if j == k:
+#                recipe_mcomp.append(value_mlist4[l])
+#                batch_comp.append(batch_list4[l])
+#                recipe_rcomp.append(value_rlist4[l])
+#            l = l + 1
+#            
+#        #Plotting of recipe comparison results
+#        
+#        if len(recipe_mcomp)>=2:
+#            pyplot.figure(2)
+#            pyplot.subplot(1, 2, 1)
+#            pyplot.plot(batch_comp, recipe_mcomp,"k-", label = "Recipe Comparison")
+#            pyplot.plot(batch_comp, recipe_mcomp,"ko")
+#            
+#            pyplot.axhline(value_mean, 0, max(batch_list), label='Data_mean')
+#            pyplot.axhline(UAL_mean, 0, max(batch_list), label='UAL')
+#            pyplot.axhline(UWL_mean, 0, max(batch_list), label='UWL')
+#            pyplot.axhline(LWL_mean, 0, max(batch_list), label='LWL')     
+#            pyplot.axhline(LAL_mean, 0, max(batch_list), label='LAL')
+#            pyplot.legend()
+#            
+#            pyplot.subplot(1, 2, 2)  
+#            pyplot.plot(batch_comp, recipe_rcomp,"k-", label = "Recipe Comparison")
+#            pyplot.plot(batch_comp, recipe_rcomp,"ko")
+#            
+#            pyplot.axhline(value_range, 0, max(batch_list), label='Data_mean_range') 
+#            pyplot.axhline(UAL_range, 0, max(batch_list), label='UAL')
+#            pyplot.axhline(UWL_range, 0, max(batch_list), label='LWL')
+#            pyplot.legend()
+#            
+#            pyplot.show(2)
             
     pyplot.figure(3)
     pyplot.subplot(1, 2, 1)
     pyplot.plot(batch_list4, value_mlist4, "k-", label = "Data")
     pyplot.plot(batch_list4, value_mlist4, "ko")
-    pyplot.plot(batch_list, value_mean_list, "g-", label = "Data_mean")
     
-    pyplot.plot(batch_list, UAL_mean_list, "r-", label = "UAL" )
-    pyplot.plot(batch_list, UWL_mean_list, "y-", label = "UWL" )
-    pyplot.plot(batch_list, LWL_mean_list, "y-", label = "LWL" )     
-    pyplot.plot(batch_list, LAL_mean_list, "r-", label = "LAL" )       
-    #pyplot.legend()
+    pyplot.axhline(value_mean, 0, max(batch_list), label='Data_mean', color = 'g')
+    pyplot.axhline(UAL_mean, 0, max(batch_list), label='UAL', color = 'r')
+    pyplot.axhline(UWL_mean, 0, max(batch_list), label='UWL', color = 'y')
+    pyplot.axhline(LWL_mean, 0, max(batch_list), label='LWL', color = 'y')     
+    pyplot.axhline(LAL_mean, 0, max(batch_list), label='LAL', color = 'r')     
+    pyplot.legend(loc = 'best')
     
     pyplot.subplot(1, 2, 2)
     pyplot.plot(batch_list4, value_rlist4, "k-", label = "Data_range")   #Range Data
     pyplot.plot(batch_list4, value_rlist4, "ko")
-    pyplot.plot(batch_list, value_range_list, "g-", label = "Data_mean_range")    
     
-    pyplot.plot(batch_list, UAL_range_list, "r", label = "UAL")
-    pyplot.plot(batch_list, UWL_range_list, "y-", label = "UWL")
-    #pyplot.legend()
+    pyplot.axhline(value_range, 0, max(batch_list), label='Data_mean_range', color = 'g')    
+    pyplot.axhline(UAL_range, 0, max(batch_list), label='UAL', color = 'r')
+    pyplot.axhline(UWL_range, 0, max(batch_list), label='LWL', color = 'y')
+    pyplot.legend(loc = 'best')
+    
     pyplot.show(3)   
     
-
 #Updating storage
-headings = ['Batches', 'Values', 'Ranges', 'Recipes']
-data = numpy.column_stack([batch_list, value_mlist, value_rlist, recipe_no_list])
+headings3 = ['Batches', 'Values', 'Ranges', 'Recipes']
+data3 = numpy.column_stack([batch_list, value_mlist, value_rlist, recipe_no_list])
 
-with open(file_name2, 'wb') as csvfile:
-    # initialize the csv.writer object
-    csvwriter = csv.writer(csvfile, delimiter=',')
-    # write the headings for the data
-    csvwriter.writerow(headings)
-    # write each row of the data list to file
-    for row_data in data:
-        csvwriter.writerow(row_data)
-            
+print (data3)
+
 
 
 
