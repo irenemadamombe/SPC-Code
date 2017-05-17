@@ -6,9 +6,8 @@ Created on Sun Apr 23 06:24:23 2017
 """
 
 from matplotlib import pyplot
-from Auxiliary_File import data_call
 import numpy
-import csv
+import pandas
 
 #Parameters 
 sample  =  4
@@ -18,32 +17,32 @@ D1_1 = 2.57
 D1_25 = 1.93
 
 #Data input required for recipe analysis
-recipe_no = input('Recipe Number: ')
-num = input('Number of recipes: ')   #Number of recipes we currently have
+#recipe_no = input('Recipe Number: ')
+#num = input('Number of recipes: ')   #Number of recipes we currently have
 
-#Electronic input of data
-#Data input from new input
-file_name1 = raw_input('File Name 1: ')   #'First test data_Tlog_2.csv'
+##Electronic input of data
+##Data input from new input
+file_name1 = input('File Name 1: ')   #First_test.csv
 
-data1 = data_call(file_name1)
+data1 = pandas.read_csv(file_name1) #, header = None, usecols=[1])
+data1 = numpy.array(data1)
 
-data1 = data1[1]
- 
-#Data input from storage
-file_name2 = raw_input('File Name 2: ')   #'Storage.csv'
 
-data2 = data_call(file_name2)
 
-data2 = data2[1]
 
-data2_values = list(data2[:,0])
-data2_range = list(data2[:,1])
-data2_recipe = list(data2[:,2])
+##Data input from storage
+#file_name2 = input('File Name 2: ')   #'Storage.csv'
+#
+#data2 = pandas.read_csv(file_name2)
+
+#
+#data2_values = list(data2[:,0])
+#data2_range = list(data2[:,1])
+#data2_recipe = list(data2[:,2])
 
 #Plotting data from continuous control over time to see visually change in values
 #Assume data changing over time for a particular batch so single value required per batch
 #Finding average value of data during the batch
-
 vals_per_batch =  list(data1[:,0])
 time_stamp = range(1, len(data1) + 1)     
 
@@ -55,7 +54,6 @@ pyplot.show(1)
 av_value = sum(vals_per_batch)/len(vals_per_batch) 
 
 #Creating a list that can be used in SPC 
-
 batch_list = []
 value_mlist = []
 value_rlist = []
@@ -71,7 +69,7 @@ value_rlist.extend(data2_range)
 
 length_data = len(value_mlist)
 
-for b in range(1, length_data + 1):                 #Improve and dont use for loop?
+for b in range(1, length_data + 1):
     batch_list.append(b)
         
 #Moving range and moving mean chart from 4th batch onwards
@@ -95,7 +93,7 @@ if batch_list[-1] >= sample:
     value_range_list = []
     for f in range(1, batch_list[-1] + 1):
         value_mean_list.append(value_mean)
-        value_range_list.append(value_range)     #Improve and dont use for loop?
+        value_range_list.append(value_range)     
       
     #Mean Chart limits
     UAL_mean_list = []
@@ -111,7 +109,7 @@ if batch_list[-1] >= sample:
     
     for g in range(1, batch_list[-1] + 1):
         UAL_mean_list.append(UAL_mean)
-        UWL_mean_list.append(UWL_mean)     #Improve and dont use for loop?
+        UWL_mean_list.append(UWL_mean)     
         LWL_mean_list.append(LWL_mean)     
         LAL_mean_list.append(LAL_mean)
         
@@ -124,12 +122,9 @@ if batch_list[-1] >= sample:
     
     for h in range(1, batch_list[-1] + 1):
         UAL_range_list.append(UAL_range)
-        UWL_range_list.append(UWL_range)    #Improve and dont use for loop?
-    
-    print len(UAL_mean_list), len(batch_list)
-    
+        UWL_range_list.append(UWL_range)    
+        
     #Creating plotting list to start at 4 batches
-    
     batch_list4 = []
     value_mlist4 = []
     value_rlist4 = []
@@ -142,7 +137,6 @@ if batch_list[-1] >= sample:
             value_rlist4.append(value_rlist[i-1])
             recipe_list4.append(recipe_no_list[i-1])
             
-    
     #Recipe comparison    
     recipes = range(1, num + 1)
 
@@ -163,7 +157,6 @@ if batch_list[-1] >= sample:
         if len(recipe_mcomp)>=2:
             pyplot.figure(2)
             pyplot.subplot(1, 2, 1)
-            
             pyplot.plot(batch_comp, recipe_mcomp,"k-", label = "Recipe Comparison")
             pyplot.plot(batch_comp, recipe_mcomp,"ko")
             
@@ -175,28 +168,26 @@ if batch_list[-1] >= sample:
             #pyplot.legend()
             
             pyplot.subplot(1, 2, 2)  
-            
             pyplot.plot(batch_comp, recipe_rcomp,"k-", label = "Recipe Comparison")
             pyplot.plot(batch_comp, recipe_rcomp,"ko")
             
             pyplot.plot(batch_list, value_range_list, "g-", label = "Data_mean_range") 
             pyplot.plot(batch_list, UAL_range_list, "r", label = "UAL")
             pyplot.plot(batch_list, UWL_range_list, "y-", label = "UWL")
-            
             #pyplot.legend()
+            
             pyplot.show(2)
             
     pyplot.figure(3)
     pyplot.subplot(1, 2, 1)
-
     pyplot.plot(batch_list4, value_mlist4, "k-", label = "Data")
     pyplot.plot(batch_list4, value_mlist4, "ko")
     pyplot.plot(batch_list, value_mean_list, "g-", label = "Data_mean")
     
     pyplot.plot(batch_list, UAL_mean_list, "r-", label = "UAL" )
     pyplot.plot(batch_list, UWL_mean_list, "y-", label = "UWL" )
-    pyplot.plot(batch_list, LWL_mean_list, "y-", label = "LWL" )     #Improve by creating a function to
-    pyplot.plot(batch_list, LAL_mean_list, "r-", label = "LAL" )       #avoid repitition?
+    pyplot.plot(batch_list, LWL_mean_list, "y-", label = "LWL" )     
+    pyplot.plot(batch_list, LAL_mean_list, "r-", label = "LAL" )       
     #pyplot.legend()
     
     pyplot.subplot(1, 2, 2)
@@ -211,7 +202,6 @@ if batch_list[-1] >= sample:
     
 
 #Updating storage
-
 headings = ['Batches', 'Values', 'Ranges', 'Recipes']
 data = numpy.column_stack([batch_list, value_mlist, value_rlist, recipe_no_list])
 
@@ -224,8 +214,7 @@ with open(file_name2, 'wb') as csvfile:
     for row_data in data:
         csvwriter.writerow(row_data)
             
-# Polishing of code i.e. good code
-# Code annotation
+
 
 
 
