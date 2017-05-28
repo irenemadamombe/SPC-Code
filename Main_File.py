@@ -2,7 +2,7 @@
 """
 Created on Sun Apr 23 06:24:23 2017
 
-@author: user
+@author: Irene Madamombe
 """
 
 from matplotlib import pyplot
@@ -16,24 +16,23 @@ two_thirds_A2 = 0.49
 D1_1 = 2.57
 D1_25 = 1.93
 
+
 #Data input required 
 recipe_no = input('Recipe Number: ')
 recipe_no = int(recipe_no)
-num = input('Number of recipes: ')   #Number of recipes we currently have
+num = input('Number of recipes: ')   
 num = int(num)
 type_run = input('Electronic or Manual: ')
 
                   
-##Data input from new input
-##Electronic input of data
+#Data input from new input
+#Electronic input of data
 if type_run == 'Electronic':
-#    file_name1 = input('File Name 1: ')   #First_test.csv
+    file_name1 = input('File Name 1: ')   
     
-    data1 = pandas.read_csv('First_test.csv', parse_dates=['TimeStamp']) 
+    data1 = pandas.read_csv(file_name1, parse_dates=['TimeStamp']) 
     data1 = data1['Value']
     
-    #Plotting data from continuous control over time to see visually change in values
-    #Assume data changing over time for a particular batch so single value required per batch
     #Finding average value of data during the batch
     vals_per_batch =  data1.tolist()
     time_stamp = range(1, len(data1) + 1)     
@@ -44,24 +43,24 @@ if type_run == 'Electronic':
     pyplot.ylabel('Controlled Variable')
     pyplot.plot(time_stamp, vals_per_batch, 'g-')
     pyplot.legend()                                
-    pyplot.show()    #return error message
+    pyplot.show()   
        
     av_value = numpy.mean(vals_per_batch)
     
 #Manual input of data
 if type_run == 'Manual':
     av_value = input('Batch Value: ')
-    av_value = float(av_value)  #Return error message and Temperature on graph
+    av_value = float(av_value)  
     
-    
-##Data input from storage
 
-#file_name2 = input('File Name 2: ')   #'Storage.csv'
-data2 = pandas.read_csv('First_storage2.csv') 
+#Data input from storage
+file_name2 = input('File Name 2: ')     
+data2 = pandas.read_csv(file_name2) 
 
 data2_values = list(data2['Values'])
 data2_range = list(data2['Ranges'])
 data2_recipe = list(data2['Recipes'])
+
 
 #Creating a list that can be used in SPC by combining storage and new data
 batch_list = []
@@ -86,14 +85,14 @@ for b in range(1, length_data + 1):
     
     print (value_rlist)
     
-    if length_data < 4 and len(value_rlist) < 3:
-        value_rlist.append(1)
+    #Place holder for range list until 4th batch
+    if length_data < 4 and (len(value_rlist) < len(batch_list)):   
+        value_rlist.append(1)      
         
-    print (value_rlist)
+        print (value_rlist)
         
     
-#Functions for SPC plots
-    
+#Functions used to plot control charts
 def plot_stats(x_points, ym_points, yr_points, title_1, title_2, title_3, title_4, xlabel, ylabel ):
     pyplot.figure()
    
@@ -128,9 +127,9 @@ def plot_range():
     pyplot.axhline(UAL_range, 0, max(batch_list), label='UAL', color = 'r')
     pyplot.axhline(UWL_range, 0, max(batch_list), label='LWL', color = 'y')
     pyplot.legend(loc = 'best')
+    
         
-#Moving range and moving mean chart from 4th batch onwards
-#Only starts plotting if more than 4 batches
+#Moving range chart and moving mean chart from 4th batch onwards
 if batch_list[-1] >= sample:   
     
     #Calculate mean and range from previous 4 batches
@@ -158,7 +157,6 @@ if batch_list[-1] >= sample:
     value_rlist4 = []
     recipe_list4 = []
     
-
     for i in range(1, batch_list[-1] + 1):
         if i >=4:
             batch_list4.append(i)
@@ -188,7 +186,6 @@ if batch_list[-1] >= sample:
         
         if len(recipe_mcomp)>=2:
             
-            
            plot_stats(batch_comp, recipe_mcomp, recipe_rcomp, 
            'Moving mean control chart for Recipe No {}'.format(j), 'Moving range control chart for Recipe No {}'.format(j), 'Process data','Process range data', 'Batch number', 'Controlled variable')
             
@@ -197,25 +194,15 @@ if batch_list[-1] >= sample:
     plot_stats(batch_list4, value_mlist4, value_rlist4, 
                'Moving mean control chart', 'Moving range control chart', 'Process data', 'Process range data', 'Batch number', 'Controlled variable')
             
-
     pyplot.show()
     
  
-
 #Updating storage
-
-print (batch_list)
-print (value_mlist)
-print (value_rlist)
-print (recipe_no_list)
-
 data3 = pandas.DataFrame({'Batches': batch_list,'Values': value_mlist, 'Ranges': value_rlist, 'Recipes': recipe_no_list})
-
-
 
 print (data3)
 
-data3.to_csv('First_storage2.csv')
+data3.to_csv(file_name2)
 
 
 
